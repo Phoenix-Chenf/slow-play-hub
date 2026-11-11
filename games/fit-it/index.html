@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f3ea"><title>放得下 · 形状收纳</title><link rel="stylesheet" href="style.css?v=5"></head>
+<body><main class="shell">
+<header class="header"><div><p class="eyebrow">慢慢玩 · 小游戏 05</p><h1>放得下 <span>慢慢找到它的位置。</span></h1></div><button class="icon-button" id="help" aria-label="玩法说明">?</button></header>
+<section class="modes" aria-label="选择玩法"><p class="level-label">选择玩法</p><div class="mode-buttons"><button type="button" data-mode="classic" aria-pressed="true">经典收纳</button><button type="button" data-mode="mirror" aria-pressed="false">翻面收纳</button><button type="button" data-mode="ordered" aria-pressed="false">顺序收纳</button></div><p id="mode-copy" class="mode-copy"></p></section>
+<section class="top"><div><label for="level-select" class="level-label">选择关卡</label><div class="select-wrap"><select id="level-select" aria-label="选择关卡"></select><span aria-hidden="true">⌄</span></div><p id="level-name" class="level-name"></p></div><div class="counts"><span id="placed-count"></span><span id="move-count"></span></div></section>
+<div class="intro-line"><span>选一块，点盒子里的位置放下。</span><button class="text-button" id="reset">重新开始</button></div>
+<section class="board-wrap" aria-label="收纳盒"><div id="board" class="board" role="grid" aria-label="收纳盒格子"></div></section>
+<p id="status" class="status" role="status" aria-live="polite">先选一块，试试放在哪里。</p>
+<div id="complete" class="complete" hidden><span aria-hidden="true">✦</span><div><strong>都放下啦！</strong><small id="complete-copy"></small></div><button id="next" class="next">下一关</button></div>
+<div class="pieces-header"><div><strong>选择物件</strong><span id="piece-hint">左右滑动查看</span></div><div class="piece-actions"><button id="remove" class="rotate" hidden>拿出</button><button id="flip" class="rotate" hidden>⇄ 翻面</button><button id="rotate" class="rotate">↻ 旋转</button></div></div>
+<div id="pieces" class="pieces" aria-label="物件列表"></div>
+<div class="action-row"><button id="undo" class="primary">↶ 撤回一步</button><button id="guide" class="secondary">玩法说明</button></div><footer>不限时间 · 不限次数 · 随时撤回 · 本机保存</footer>
+</main>
+<div id="modal-backdrop" hidden aria-hidden="true"></div>
+<dialog id="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title"><div class="dialog-inner"><span class="eyebrow">怎么玩</span><h2 id="help-title">让每一块都找到位置</h2>
+<div class="guide-animation" role="img" aria-label="示意：选一块形状，旋转后放进盒子"><svg viewBox="0 0 300 130" aria-hidden="true"><rect class="demo-box" x="90" y="9" width="120" height="80" rx="10"/><path class="demo-grid" d="M130 9v80M170 9v80M90 49h120"/><g class="demo-piece"><rect x="0" y="0" width="34" height="34" rx="5"/><rect x="34" y="0" width="34" height="34" rx="5"/><rect x="0" y="34" width="34" height="34" rx="5"/></g><text x="95" y="120">选一块</text><text x="154" y="120">↻ 旋转</text><text x="215" y="120">放入盒子</text></svg><span class="demo-tap" aria-hidden="true">☝</span></div>
+<ol><li>先点下面的物件；按“旋转”可以换方向。</li><li>再点盒里的格子，把物件上白点的位置对准这个格子。</li><li>所有物件都放进去，就过关啦。</li></ol><p><strong>翻面收纳：</strong>选中物件后可左右翻面，再调整方向放入。</p><p><strong>顺序收纳：</strong>按提示顺序放入物件，已放的仍可移动或拿出。拿出前序物件后，要先按提示补回，才能继续放后面的物件。</p><p>放不下可以换位置，已放的物件也能再次选中移动或拿出。不限时间、次数，随时撤回。</p><button id="close-help" class="primary">知道了</button></div></dialog>
+<script type="module" src="app.mjs?v=5"></script></body></html>
