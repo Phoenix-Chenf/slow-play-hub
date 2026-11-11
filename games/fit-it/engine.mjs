@@ -108,6 +108,23 @@ export function fresh(level) {
   if(level.mode==='mirror')state.flips=Object.fromEntries(level.pieces.map(p=>[p.id,false]));
   return state;
 }
+// Offer a gentler start without changing any existing level geometry or saves.
+// Preset pieces are ordinary pieces: players may move, remove, and undo them.
+export function starter(level) {
+  const state=fresh(level);
+  if(level.number>5)return state;
+  if(level.number<=3)level.pieces.forEach((p,i)=>{
+    if(i < 5-level.number)state.rotations[p.id]=0;
+  });
+  const count=level.number===1?2:1;
+  const candidates=level.mode==='mirror'?level.solution.filter(a=>!a.flip):level.solution;
+  for(const a of candidates.slice(0,count)){
+    state.rotations[a.id]=a.rotation;
+    if(state.flips)state.flips[a.id]=!!a.flip;
+    state.placed[a.id]=state.flips?{x:a.x,y:a.y,rotation:a.rotation,flip:!!a.flip}:{x:a.x,y:a.y,rotation:a.rotation};
+  }
+  return state;
+}
 function copyPlaced(placed) {return Object.fromEntries(Object.entries(placed).map(([id,p])=>[id,{...p}]));}
 function withFlips(state,copy){if(state.flips)copy.flips={...state.flips};return copy;}
 function snapshot(state) {return withFlips(state,{placed:copyPlaced(state.placed),rotations:{...state.rotations},moves:state.moves});}
