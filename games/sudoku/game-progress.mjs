@@ -1,12 +1,12 @@
-import { createPuzzle } from './engine.mjs?v=20261112';
+import { createPuzzle } from './engine.mjs?v=20261112-v3';
 
-const editions = new Set(['legacy', 'easier']);
+const editions = new Set(['legacy', 'easier', 'v3']);
 
 // Older saves do not carry an edition. Their board and every undo snapshot
 // must continue to be interpreted against the original puzzle.
 export function restoreGame(mode, level, saved) {
   const exists = !!saved && typeof saved === 'object';
-  const edition = exists ? (editions.has(saved.edition) ? saved.edition : 'legacy') : 'easier';
+  const edition = exists ? (editions.has(saved.edition) ? saved.edition : 'legacy') : 'v3';
   const puzzles = {};
   const puzzleFor = version => puzzles[version] ??= createPuzzle(mode, level, version).puzzle;
   const valid = (values, version) => Array.isArray(values) && values.length === 81 && values.every((n, i) => Number.isInteger(n) && n >= 0 && n <= 9 && (!puzzleFor(version)[i] || puzzleFor(version)[i] === n));
@@ -26,8 +26,8 @@ export function recordGame(state) {
 
 export function resetGame(mode, level, state) {
   const next = recordGame(state);
-  next.edition = 'easier';
-  next.values = createPuzzle(mode, level, 'easier').puzzle;
+  next.edition = 'v3';
+  next.values = createPuzzle(mode, level, 'v3').puzzle;
   return next;
 }
 

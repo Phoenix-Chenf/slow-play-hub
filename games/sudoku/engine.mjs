@@ -1,5 +1,6 @@
 import { PUZZLES } from './puzzles.mjs?v=2';
 import { EASIER_PUZZLES } from './easier-puzzles.mjs?v=20261112';
+import { V3_PUZZLES } from './puzzles-v3.mjs?v=20261112-v3';
 export const MODES = { easy: '轻松', normal: '进阶', hard: '挑战' };
 export const LEVEL_COUNT = 30;
 export function canPlace(grid, i, n) {
@@ -27,10 +28,10 @@ function solve(input, limit = 2) {
   search(); return { count, solution };
 }
 export function countSolutions(grid, limit = 2) { return solve(grid, limit).count; }
-export function createPuzzle(mode, level, edition = 'easier') {
+export function createPuzzle(mode, level, edition = 'v3') {
   if (!Object.hasOwn(PUZZLES, mode) || !Number.isInteger(level) || level < 1 || level > LEVEL_COUNT) throw new RangeError('invalid puzzle');
-  if (!['legacy', 'easier'].includes(edition)) throw new RangeError('invalid edition');
-  const puzzle = Array.from((edition === 'legacy' ? PUZZLES : EASIER_PUZZLES)[mode][level - 1], Number);
+  if (!['legacy', 'easier', 'v3'].includes(edition)) throw new RangeError('invalid edition');
+  const puzzle = Array.from((edition === 'legacy' ? PUZZLES : edition === 'easier' ? EASIER_PUZZLES : V3_PUZZLES)[mode][level - 1], Number);
   return { puzzle, solution: solve(puzzle, 1).solution };
 }
 export function place(given, values, index, n) {

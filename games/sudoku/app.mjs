@@ -1,9 +1,11 @@
-import { MODES, LEVEL_COUNT, createPuzzle, canPlace, finished, place } from './engine.mjs?v=20261112';
-import { restoreGame, recordGame, resetGame, undoGame } from './game-progress.mjs?v=20261112';
+import { MODES, LEVEL_COUNT, createPuzzle, canPlace, finished, place } from './engine.mjs?v=20261112-v3';
+import { restoreGame, recordGame, resetGame, undoGame } from './game-progress.mjs?v=20261112-v3';
 const $ = (id) => document.getElementById(id);
-const key = 'slow-sudoku-v1';
-let saved = null, writable = true;
-try { saved = JSON.parse(localStorage.getItem(key) || 'null'); } catch { writable = false; }
+// A separate key protects the new edition from old tabs that cannot read v3.
+// Keep v1 intact; only migrate it when v2 has not yet been created.
+const key = 'slow-sudoku-v2', oldKey = 'slow-sudoku-v1';
+let saved = null, writable = true, writeAllowed = true;
+try { const currentSave = localStorage.getItem(key); saved = JSON.parse(currentSave === null ? (localStorage.getItem(oldKey) || 'null') : currentSave); } catch { writable = false; writeAllowed = false; }
 const data = saved && typeof saved === 'object' ? saved : {};
 data.games = data.games && typeof data.games === 'object' ? data.games : {};
 let mode = Object.prototype.hasOwnProperty.call(MODES, data.mode) ? data.mode : 'easy';
@@ -12,7 +14,7 @@ let selected = null, current, given, solution, message = '先选一个空格，�
 const keyFor = () => `${mode}-${level}`;
 function save() {
   data.mode = mode; data.level = level; data.games[keyFor()] = current;
-  try { localStorage.setItem(key, JSON.stringify(data)); writable = true; } catch { writable = false; }
+  if (writeAllowed) try { localStorage.setItem(key, JSON.stringify(data)); writable = true; } catch { writable = false; }
   $('save-warning').hidden = writable;
 }
 function setPuzzle() {
@@ -91,7 +93,7 @@ $('hint').addEventListener('click', () => {
   message = finished(current.values) ? '完成啦，慢慢数独也可以很有成就感。' : !canPlace(current.values, i, solution[i]) ? '提示数字与之前填写的数字冲突，请检查红色格子，也可以撤回。' : '已帮你填入一个数字，也可以撤回。'; render(); save();
 });
 $('next').addEventListener('click', () => { level = level < LEVEL_COUNT ? level + 1 : 1; load(); });
-$('reset').addEventListener('click', () => { const prompt = current.edition === 'legacy' ? '重新开始后将切换到更简单的新题，当前关的填写会清空；可以撤回恢复原题和进度。继续吗？' : '重新开始本关？当前填写会清空，也可以撤回。'; if (!confirm(prompt)) return; current = resetGame(mode, level, current); setPuzzle(); selected = null; message = '已重新开始，也可以撤回。'; render(); save(); });
+$('reset').addEventListener('click', () => { const prompt = current.edition !== 'v3' ? '重新开始后将切换到新版题目，当前关的填写会清空；可以撤回恢复原题和进度。继续吗？' : '重新开始本关？当前填写会清空，也可以撤回。'; if (!confirm(prompt)) return; current = resetGame(mode, level, current); setPuzzle(); selected = null; message = '已重新开始，也可以撤回。'; render(); save(); });
 const overlay = $('overlay');
 function showHelp() { overlay.hidden = false; $('close-help').focus(); }
 function closeHelp() { overlay.hidden = true; data.seen = true; save(); $('help').focus(); }
