@@ -51,12 +51,26 @@ function render() {
   }
   $('undo').disabled = current.history.length === 0;
   $('erase').disabled = selected === null || Boolean(given[selected]) || !values[selected];
+  let candidateCount = 0;
+  Array.from($('numbers').children).forEach((button, index) => {
+    const allowed = selected !== null && !given[selected] && canPlace(values, selected, index + 1);
+    button.disabled = !allowed;
+    button.classList.toggle('unavailable', !allowed);
+    button.setAttribute('aria-hidden', String(!allowed));
+    if (allowed) candidateCount++;
+  });
+  if (selected !== null && !given[selected] && candidateCount === 0) {
+    message = values[selected] && !canPlace(values, selected, values[selected])
+      ? '这个格子与之前填写的数字冲突，没有可选数字；请检查红色格子，也可以擦除或撤回。'
+      : '这个格子暂时没有可选数字，可能之前填错了；可以擦除或撤回。';
+  }
   $('complete').hidden = !finished(values);
   $('next').textContent = level < LEVEL_COUNT ? '下一关' : '再玩第一关';
   $('message').textContent = message;
 }
 function input(n) {
   if (selected === null) { setMessage('请先选择一个空格。'); return; }
+  if (n && !given[selected] && !canPlace(current.values, selected, n)) { setMessage('这个数字与当前行、列或小方格重复，请选显示的数字。'); return; }
   const next = place(given, current.values, selected, n);
   if (!next) { setMessage('题目给出的数字不能改动，请选空格。'); return; }
   if (next[selected] === current.values[selected]) return;
@@ -74,7 +88,7 @@ $('hint').addEventListener('click', () => {
   let i = selected !== null && !given[selected] && current.values[selected] !== solution[selected] ? selected : current.values.findIndex((v, j) => !given[j] && v !== solution[j]);
   if (i < 0) { setMessage('这一关已经填好了。'); return; }
   selected = i; current = recordGame(current); current.values[i] = solution[i];
-  message = finished(current.values) ? '完成啦，慢慢数独也可以很有成就感。' : '已帮你填入一个数字，也可以撤回。'; render(); save();
+  message = finished(current.values) ? '完成啦，慢慢数独也可以很有成就感。' : !canPlace(current.values, i, solution[i]) ? '提示数字与之前填写的数字冲突，请检查红色格子，也可以撤回。' : '已帮你填入一个数字，也可以撤回。'; render(); save();
 });
 $('next').addEventListener('click', () => { level = level < LEVEL_COUNT ? level + 1 : 1; load(); });
 $('reset').addEventListener('click', () => { const prompt = current.edition === 'legacy' ? '重新开始后将切换到更简单的新题，当前关的填写会清空；可以撤回恢复原题和进度。继续吗？' : '重新开始本关？当前填写会清空，也可以撤回。'; if (!confirm(prompt)) return; current = resetGame(mode, level, current); setPuzzle(); selected = null; message = '已重新开始，也可以撤回。'; render(); save(); });

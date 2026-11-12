@@ -1,7 +1,7 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f3ea"><title>慢慢数独</title><link rel="stylesheet" href="style.css"></head>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f3ea"><title>慢慢数独</title><link rel="stylesheet" href="style.css?v=20261112-candidates"></head>
 <body><main class="shell">
 <header class="header"><div><p class="eyebrow">慢慢玩 · 小游戏 08</p><h1>慢慢数独 <span>一点一点，填满它。</span></h1></div><button type="button" class="help" id="help" aria-label="玩法说明">?</button></header>
-<section class="choice"><p class="label">选择难度</p><div id="modes" class="modes" role="group" aria-label="选择难度"><button type="button" data-mode="easy">轻松</button><button type="button" data-mode="normal">进阶</button><button type="button" data-mode="hard">挑战</button></div><p class="caption">轻点空格，再点数字。走错了也可以撤回。</p></section>
+<section class="choice"><p class="label">选择难度</p><div id="modes" class="modes" role="group" aria-label="选择难度"><button type="button" data-mode="easy">轻松</button><button type="button" data-mode="normal">进阶</button><button type="button" data-mode="hard">挑战</button></div><p class="caption">选中格子后，显示当前行、列和小方格里可以填的数字。</p></section>
 <section class="stage"><div><label for="level" class="label">选择关卡</label><div class="select-wrap"><select id="level" aria-label="选择关卡"></select><span aria-hidden="true">⌄</span></div></div><div class="progress" id="progress"></div></section>
 <div class="board-top"><span>每行、每列和每个小方格都要有 1—9。</span><button type="button" class="text-btn" id="reset">重新开始</button></div>
 <div id="board" class="board" role="grid" aria-label="数独棋盘"></div>
@@ -11,5 +11,5 @@
 <div class="actions"><button id="undo" class="primary">↶ 撤回</button><button id="erase" class="secondary">擦除</button><button id="hint" class="secondary">提示</button></div>
 <p class="save-warning" id="save-warning" role="status" hidden>当前浏览器无法保存进度，退出后可能丢失。</p><footer>不限时间 · 不限次数 · 随时撤回 · 本机保存</footer>
 </main>
-<div id="overlay" class="overlay" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="help-title"><p class="eyebrow">怎么玩</p><h2 id="help-title">数独，慢慢填</h2><div class="demo" aria-hidden="true"><span>1</span><span>2</span><span class="demo-empty">3</span><span>4</span></div><ol><li>每一行、每一列和每个 3×3 小方格，都要填入 1 到 9，不能重复。</li><li>点一个空格，再点下方的数字；重复的数字会标出。</li><li>卡住时可以用提示，填错也可以擦除或随时撤回。</li></ol><p>不用计时，也没有失败次数。进度保存在当前浏览器。</p><button class="primary" type="button" id="close-help">知道了，开始玩</button></section></div>
-<script type="module" src="app.mjs?v=20261112"></script></body></html>
+<div id="overlay" class="overlay" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="help-title"><p class="eyebrow">怎么玩</p><h2 id="help-title">数独，慢慢填</h2><div class="demo" aria-hidden="true"><span>1</span><span>2</span><span class="demo-empty">3</span><span>4</span></div><ol><li>每一行、每一列和每个 3×3 小方格，都要填入 1 到 9，不能重复。</li><li>点一个空格，下方只显示与当前行、列和小方格不重复的数字；候选数字未必都是最终答案。</li><li>卡住时可以用提示，填错也可以擦除或随时撤回。</li></ol><p>不用计时，也没有失败次数。进度保存在当前浏览器。</p><button class="primary" type="button" id="close-help">知道了，开始玩</button></section></div>
+<script type="module" src="app.mjs?v=20261112-candidates"></script></body></html>
