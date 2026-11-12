@@ -1,4 +1,5 @@
-import { MODES, LEVEL_COUNT, createPuzzle, canPlace, finished, place } from './engine.mjs?v=2';
+import { MODES, LEVEL_COUNT, createPuzzle, canPlace, finished, place } from './engine.mjs?v=20261112';
+import { restoreGame, recordGame, resetGame, undoGame } from './game-progress.mjs?v=20261112';
 const $ = (id) => document.getElementById(id);
 const key = 'slow-sudoku-v1';
 let saved = null, writable = true;
@@ -14,13 +15,12 @@ function save() {
   try { localStorage.setItem(key, JSON.stringify(data)); writable = true; } catch { writable = false; }
   $('save-warning').hidden = writable;
 }
-function validBoard(values) {
-  return Array.isArray(values) && values.length === 81 && values.every((n, i) => Number.isInteger(n) && n >= 0 && n <= 9 && (!given[i] || given[i] === n));
+function setPuzzle() {
+  ({ puzzle: given, solution } = createPuzzle(mode, level, current.edition));
 }
 function load() {
-  ({ puzzle: given, solution } = createPuzzle(mode, level));
-  const v = data.games[keyFor()];
-  current = v && validBoard(v.values) ? { values: v.values.slice(), history: Array.isArray(v.history) ? v.history.filter(validBoard).map(b => b.slice()) : [] } : { values: given.slice(), history: [] };
+  current = restoreGame(mode, level, data.games[keyFor()]);
+  setPuzzle();
   selected = null; message = '先选一个空格，再填入数字。'; render(); save();
 }
 function setMessage(s) { message = s; $('message').textContent = s; }
@@ -60,7 +60,7 @@ function input(n) {
   const next = place(given, current.values, selected, n);
   if (!next) { setMessage('题目给出的数字不能改动，请选空格。'); return; }
   if (next[selected] === current.values[selected]) return;
-  current.history.push(current.values.slice()); current.values = next;
+  current = recordGame(current); current.values = next;
   message = finished(next) ? '完成啦，慢慢数独也可以很有成就感。' : n && !canPlace(next, selected, n) ? '有重复的数字，换一个试试。' : n ? '填好了，可以继续。' : '已经擦除。';
   render(); save();
 }
@@ -68,16 +68,16 @@ for (let n = 1; n <= 9; n++) { const b = document.createElement('button'); b.typ
 for (let n = 1; n <= LEVEL_COUNT; n++) { const o = document.createElement('option'); o.value = n; o.textContent = `第 ${n} / ${LEVEL_COUNT} 关`; $('level').appendChild(o); }
 document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; level = 1; load(); }));
 $('level').addEventListener('change', e => { level = Number(e.target.value); load(); });
-$('undo').addEventListener('click', () => { if (!current.history.length) return; current.values = current.history.pop(); message = '已撤回一步。'; render(); save(); });
+$('undo').addEventListener('click', () => { const previous = undoGame(current); if (!previous) return; current = previous; setPuzzle(); message = '已撤回一步。'; render(); save(); });
 $('erase').addEventListener('click', () => input(0));
 $('hint').addEventListener('click', () => {
   let i = selected !== null && !given[selected] && current.values[selected] !== solution[selected] ? selected : current.values.findIndex((v, j) => !given[j] && v !== solution[j]);
   if (i < 0) { setMessage('这一关已经填好了。'); return; }
-  selected = i; current.history.push(current.values.slice()); current.values[i] = solution[i];
+  selected = i; current = recordGame(current); current.values[i] = solution[i];
   message = finished(current.values) ? '完成啦，慢慢数独也可以很有成就感。' : '已帮你填入一个数字，也可以撤回。'; render(); save();
 });
 $('next').addEventListener('click', () => { level = level < LEVEL_COUNT ? level + 1 : 1; load(); });
-$('reset').addEventListener('click', () => { if (!confirm('重新开始本关？当前填写会清空。')) return; current.history.push(current.values.slice()); current.values = given.slice(); selected = null; message = '已重新开始，也可以撤回。'; render(); save(); });
+$('reset').addEventListener('click', () => { const prompt = current.edition === 'legacy' ? '重新开始后将切换到更简单的新题，当前关的填写会清空；可以撤回恢复原题和进度。继续吗？' : '重新开始本关？当前填写会清空，也可以撤回。'; if (!confirm(prompt)) return; current = resetGame(mode, level, current); setPuzzle(); selected = null; message = '已重新开始，也可以撤回。'; render(); save(); });
 const overlay = $('overlay');
 function showHelp() { overlay.hidden = false; $('close-help').focus(); }
 function closeHelp() { overlay.hidden = true; data.seen = true; save(); $('help').focus(); }
