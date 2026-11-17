@@ -7,3 +7,6 @@ dialog:not([open]){display:none}
 dialog.fallback-dialog[open]{display:block;position:fixed;top:50%;left:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:90%;max-width:400px;margin:0;z-index:1001}
 /* A percentage spacer keeps the board's height in webviews without aspect-ratio. */
 .board::before{content:"";display:block;padding-top:var(--board-ratio)}
+/* Make a suggested tile visible without hiding its picture or requiring motion. */
+.action-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tile.hinted{outline:4px solid #b96b1e;outline-offset:2px;box-shadow:0 0 0 7px rgba(255,221,129,.8),0 5px 12px rgba(80,96,75,.25)}

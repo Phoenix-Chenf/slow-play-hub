@@ -1,4 +1,4 @@
-import {buildLevel, fresh, move, undo, addSlot, isCovered, isLocked, TILES} from './engine.mjs?v=20261117-100';
+import {buildLevel, fresh, move, undo, addSlot, isCovered, isLocked, hint, TILES} from './engine.mjs?v=20261117-hint';
 import {readProgress, writeProgress, MODES} from './storage.mjs?v=20261117-100';
 
 const $ = id => document.getElementById(id);
@@ -35,7 +35,7 @@ function tell(text, warning = false) {
   $('message').textContent = text;
   $('message').classList.toggle('warning', warning);
 }
-function render() {
+function render(hintId = null) {
   select.value = String(index);
   $('level-name').textContent = level.name;
   $('left-count').textContent = `剩余 ${state.remaining.length} 片`;
@@ -70,13 +70,14 @@ function render() {
     button.classList.toggle('mystery', concealed);
     button.classList.toggle('locked', locked);
     button.classList.toggle('keyed', tile.keyFor != null);
+    button.classList.toggle('hinted', tile.id === hintId);
     button.disabled = covered || locked;
     button.style.setProperty('--tile-color', concealed ? '#d9d8e5' : info.color);
     button.style.left = `${tile.x / level.width * 100}%`;
     button.style.top = `${tile.y / level.height * 100}%`;
     button.style.width = `${55 / level.width * 100}%`;
     button.style.zIndex = String(tile.layer + 1);
-    button.setAttribute('aria-label', [name, badgeText, reasons.length ? reasons.join('，') : '可以拿取'].filter(Boolean).join('，'));
+    button.setAttribute('aria-label', [name, badgeText, reasons.length ? reasons.join('，') : '可以拿取', tile.id === hintId ? '提示：可尝试拿取' : ''].filter(Boolean).join('，'));
     const pic = document.createElement('span');
     pic.className = 'pic';
     pic.textContent = concealed ? '?' : info.icon;
@@ -159,6 +160,18 @@ function setMode(nextMode) {
 document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.mode)));
 $('add').addEventListener('click', () => { state = addSlot(state); save(); render(); $('tray').scrollLeft = $('tray').scrollWidth; tell('加了一个空槽位，可以继续整理。'); });
 $('undo').addEventListener('click', () => { const previous = undo(state); if (previous) { state = previous; save(); render(); tell('已撤回一步。'); } });
+$('hint').addEventListener('click', () => {
+  const suggestion = hint(level, state);
+  if (suggestion.reason === 'tile') {
+    render(suggestion.id);
+    const tile = level.tiles.find(item => item.id === suggestion.id);
+    tell(mode === 'mystery' && tile.mystery ? '可以试试亮起的迷雾片，图案拿起后才知道。' : '可以试试亮起的片片；需要时随时撤回。');
+    $('board').querySelector?.('.hinted')?.scrollIntoView?.({behavior:'smooth',block:'center'});
+  } else {
+    render();
+    tell(suggestion.reason === 'full' ? '槽位满啦，可以先加槽位或撤回一步。' : suggestion.reason === 'complete' ? '这一关已经清空啦。' : '暂时没有可拿的片片，可以试试撤回。', suggestion.reason !== 'complete');
+  }
+});
 $('reset').addEventListener('click', () => { if (confirm('重新开始这一关？当前关内进度会清空。')) setLevel(index, true); });
 select.addEventListener('change', () => setLevel(Number(select.value)));
 $('next').addEventListener('click', () => index === LIMIT ? setLevel(index, true) : setLevel(index + 1));

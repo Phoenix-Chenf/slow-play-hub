@@ -120,3 +120,19 @@ function copyState(s){return {...s,remaining:s.remaining.slice(),tray:s.tray.sli
 export function addSlot(state){const n=copyState(state);n.history.push(snapshot(state));n.capacity++;n.extra++;return n;}
 export function undo(state){if(!state.history.length)return null;const n=copyState(state), prev=n.history.pop();return {...prev,history:n.history};}
 export function available(level,state){const set=new Set(state.remaining);return level.tiles.filter(t=>set.has(t.id)&&!isCovered(t,level.tiles,set)&&!isLocked(t,set)).map(t=>t.id);}
+// A local suggestion, not a proof that the resulting board is solvable.
+// Never inspect a mystery tile's hidden kind while deciding what to suggest.
+export function hint(level,state){
+ if(!state.remaining.length && !state.tray.length)return {reason:'complete'};
+ if(state.tray.length>=state.capacity)return {reason:'full'};
+ const ids=available(level,state), allowed=new Set(ids);
+ let best=null,bestScore=-1;
+ for(const tile of level.tiles){
+  if(!allowed.has(tile.id))continue;
+  const hidden=level.mode==='mystery' && tile.mystery;
+  const matches=hidden?0:state.tray.filter(kind=>kind===tile.kind).length;
+  const score=(matches>=2?300:matches===1?200:hidden?0:50)+(tile.keyFor!=null?100:0);
+  if(score>bestScore){best=tile.id;bestScore=score;}
+ }
+ return best===null?{reason:'blocked'}:{reason:'tile',id:best};
+}
