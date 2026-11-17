@@ -1,5 +1,5 @@
-import {buildLevel, fresh, move, undo, addSlot, isCovered, isLocked, TILES} from './engine.mjs?v=20261110c';
-import {readProgress, writeProgress, MODES} from './storage.mjs?v=20261110c';
+import {buildLevel, fresh, move, undo, addSlot, isCovered, isLocked, TILES} from './engine.mjs?v=20261117-100';
+import {readProgress, writeProgress, MODES} from './storage.mjs?v=20261117-100';
 
 const $ = id => document.getElementById(id);
 // Older mobile webviews may not implement Element.replaceChildren.
@@ -7,7 +7,7 @@ function clearChildren(element) {
   if (typeof element.replaceChildren === 'function') element.replaceChildren();
   else while (element.firstChild) element.removeChild(element.firstChild);
 }
-const LIMIT = 30;
+const LIMIT = 100;
 const MODE_TEXT = {
   classic: '经典整理：挑露出的片片，凑齐三个一样的图案。',
   mystery: '迷雾揭晓：问号片拿起放进槽里才揭晓图案，可随时撤回。',

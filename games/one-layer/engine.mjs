@@ -33,6 +33,15 @@ for(let n=9;n<=30;n++){
   while(left>0){const layer=Math.min(cells,left);counts.push(layer);left-=layer;}
   CONFIGS.push({name:LATER_NAMES[n-9],cols:4,rows,counts,colors:12,seed:LATER_SEEDS.classic[n-9]});
 }
+// Keep the original 90 boards byte-for-byte stable for existing saves. New
+// boards grow more gradually so the four-column touch targets remain usable.
+const EXPANDED_NAMES=['花园慢行','重叠的路','薄荷小径','片片相遇','藏在花丛','绕过小山','层层花圃','清理角落','叶间寻路','一片晴天'];
+for(let n=31;n<=100;n++){
+  const total=96+3*Math.floor((n-30)*0.45), cells=20;
+  let left=total;const counts=[];
+  while(left>0){const layer=Math.min(cells,left);counts.push(layer);left-=layer;}
+  CONFIGS.push({name:EXPANDED_NAMES[(n-31)%EXPANDED_NAMES.length],cols:4,rows:5,counts,colors:12,seed:(0x1020304+Math.imul(n,2654435761))>>>0});
+}
 const CELL_X=65, CELL_Y=72, W=55, H=62;
 function rng(seed) { return () => { seed = (Math.imul(seed,1664525)+1013904223)>>>0; return seed / 4294967296; }; }
 const shuffle = (arr, rand) => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
@@ -42,7 +51,7 @@ export function isCovered(tile, tiles, remaining) {
 export function buildLevel(number, mode='classic') {
   if(!['classic','mystery','keys'].includes(mode)) throw new Error('Invalid mode');
   const base=CONFIGS[number-1]; if(!Number.isInteger(number)||!base) throw new Error('Invalid level');
-  const c=mode==='classic'?base:{...base,seed:number>8?LATER_SEEDS[mode][number-9]:base.seed+(mode==='mystery'?130019:270013)};
+  const c=mode==='classic'?base:{...base,seed:number>30?(base.seed+(mode==='mystery'?130019:270013))>>>0:number>8?LATER_SEEDS[mode][number-9]:base.seed+(mode==='mystery'?130019:270013)};
   const random=rng(c.seed), maxLayer=c.counts.length-1;
   const cells=Array.from({length:c.cols*c.rows},(_,i)=>i), tiles=[];
   c.counts.forEach((count,layer)=>{

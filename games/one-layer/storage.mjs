@@ -4,7 +4,7 @@ export const MODES = ['classic', 'mystery', 'keys'];
 
 const EARLY_TILE_COUNTS = [9, 12, 15, 21, 24, 30, 36, 45];
 function tileCount(level) {
-  return level <= 8 ? EARLY_TILE_COUNTS[level - 1] : 45 + 3 * Math.floor((level - 8) * 0.8);
+  return level <= 8 ? EARLY_TILE_COUNTS[level - 1] : level <= 30 ? 45 + 3 * Math.floor((level - 8) * 0.8) : 96 + 3 * Math.floor((level - 30) * 0.45);
 }
 function validSnapshot(value, level) {
   if (!value || typeof value !== 'object' || !Array.isArray(value.remaining) || !Array.isArray(value.tray)) return false;
@@ -26,7 +26,7 @@ function restoreState(value, level) {
   }) ? value.history : [];
   return {...value, history};
 }
-function validLevel(n) { return Number.isInteger(n) && n >= 1 && n <= 30; }
+function validLevel(n) { return Number.isInteger(n) && n >= 1 && n <= 100; }
 function blank() { return { version: 2, mode: 'classic', levels: {classic: 1, mystery: 1, keys: 1}, progress: {classic: {}, mystery: {}, keys: {}} }; }
 
 // Do not remove the old key: users can still return to the original eight-level build.

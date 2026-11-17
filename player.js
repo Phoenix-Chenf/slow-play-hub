@@ -1,7 +1,7 @@
 const games = {
   clear: ['空一点', 'games/clear-a-little/index.html'],
   nut: ['理一理', 'games/nut-sort/index.html'],
-  layer: ['一层层', 'games/one-layer/index.html?v=20261111-guide'],
+  layer: ['一层层', 'games/one-layer/index.html?v=20261117-100'],
   connect: ['接上啦', 'games/connect-it/index.html'],
   fit: ['放得下', 'games/fit-it/index.html?v=20261112-hint'],
   traffic: ['让一让', 'games/let-it-pass/index.html'],
