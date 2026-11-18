@@ -237,36 +237,32 @@
     openDialog(winDialog, $('level-button'));
   }
 
-  function animatePour(from, to, color, callback) {
+  function animatePour(from, to, before, result, callback) {
     const source = findBottle(from);
     const target = findBottle(to);
-    if (!source || !target || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const animation = globalThis.PourMotion;
+    let finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      board.removeAttribute('aria-busy');
       callback();
+    }
+    if (!source || !target || !animation) {
+      finish();
       return;
     }
-    const first = source.querySelector('.glass-mouth').getBoundingClientRect();
-    const second = target.querySelector('.glass-mouth').getBoundingClientRect();
-    const direction = second.x >= first.x ? 1 : -1;
-    source.style.setProperty('--pour-angle', `${direction * 19}deg`);
-    source.classList.add('is-pouring');
-    target.classList.add('is-receiving');
-    const stream = el('span', 'pour-stream');
-    stream.setAttribute('aria-hidden', 'true');
-    const x = first.x + first.width / 2 + direction * 6;
-    const y = first.y + first.height * 0.55 - 9;
-    const dx = second.x + second.width / 2 - x;
-    const dy = second.y + second.height * 0.6 - y;
-    stream.style.position = 'fixed';
-    stream.style.left = `${x}px`;
-    stream.style.top = `${y}px`;
-    stream.style.width = `${Math.hypot(dx, dy)}px`;
-    stream.style.setProperty('--stream-angle', `${Math.atan2(dy, dx)}rad`);
-    stream.style.setProperty('--stream-color', game.colors[color].deep);
-    document.body.appendChild(stream);
-    window.setTimeout(() => {
-      stream.remove();
-      callback();
-    }, 255);
+    board.setAttribute('aria-busy', 'true');
+    try {
+      animation.play({
+        source, target, amount: result.amount, color: game.colors[result.color],
+        fromBefore: before.bottles[from].length, toBefore: before.bottles[to].length,
+        fromAfter: result.state.bottles[from].length, toAfter: result.state.bottles[to].length,
+        done: finish
+      });
+    } catch {
+      finish();
+    }
   }
 
   board.addEventListener('click', (event) => {
@@ -293,12 +289,13 @@
       return;
     }
     const from = selected;
-    const result = game.pour(run.state, from, target);
+    const before = run.state;
+    const result = game.pour(before, from, target);
     if (!result.ok) {
       announce(messages[result.reason] || messages.missing, 'error');
       return;
     }
-    run.history.push(run.state);
+    run.history.push(before);
     run.state = result.state;
     if (result.won) {
       const previous = active.finished[index];
@@ -309,7 +306,7 @@
     highlighted = null;
     busy = true;
     save();
-    animatePour(from, target, result.color, () => {
+    animatePour(from, target, before, result, () => {
       busy = false;
       render(focusIndex);
       if (result.won) showWin();

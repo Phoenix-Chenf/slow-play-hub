@@ -18,6 +18,8 @@ body {
   min-width: 280px;
   min-height: 100vh;
   margin: 0;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   color: var(--ink);
   background:
     radial-gradient(ellipse at 50% 0, #fffdf4 0, transparent 56%),
@@ -39,35 +41,50 @@ button:focus-visible {
 .shell {
   width: min(100%, 560px);
   margin-inline: auto;
-  padding: max(21px, env(safe-area-inset-top)) 16px max(17px, env(safe-area-inset-bottom));
+  padding: max(15px, env(safe-area-inset-top)) 16px max(17px, env(safe-area-inset-bottom));
 }
 
-.topbar, .brand, .stage, .level-button, .stage-stats, .sheet-heading {
+.stage, .level-button, .stage-stats, .sheet-heading {
   display: flex;
   align-items: center;
 }
-.topbar, .stage, .sheet-heading { justify-content: space-between; }
-.topbar { gap: 15px; margin: 0 2px 19px; }
-.brand { gap: 11px; min-width: 0; }
+.stage, .sheet-heading { justify-content: space-between; }
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+  margin: 0 2px 13px;
+}
+.brand {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.brand > div { min-width: 0; }
 .brand h1 {
   margin: 0;
-  font-family: "Songti SC", "Noto Serif CJK SC", "Microsoft YaHei", serif;
-  font-size: clamp(28px, 9vw, 40px);
-  line-height: 1.1;
-  font-weight: 700;
-  letter-spacing: .075em;
+  font-family: "Songti SC", "Noto Serif CJK SC", "PingFang SC", serif;
+  font-size: clamp(25px, 7.4vw, 34px);
+  line-height: 1.13;
+  font-weight: 600;
+  letter-spacing: .035em;
+  white-space: nowrap;
 }
 .brand p {
-  margin: 5px 0 0;
+  margin: 3px 0 0;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.3;
+  white-space: nowrap;
 }
 .brand-mark {
   display: grid;
   place-items: center;
-  flex: 0 0 41px;
-  height: 41px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: #e6ead2;
   box-shadow: inset 0 0 0 1px #d8dec0;
@@ -97,7 +114,7 @@ button:focus-visible {
 }
 .round-control:active, .tool-button:active:not(:disabled) { background: #e1e8da; }
 
-.mode-picker { margin: 0 0 12px; }
+.mode-picker { margin: 0 0 9px; }
 .mode-switch {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -141,9 +158,9 @@ button:focus-visible {
   box-shadow: 0 8px 25px #153a2c0d;
 }
 .stage {
-  min-height: 59px;
+  min-height: 57px;
   gap: 10px;
-  padding: 10px 12px 10px 14px;
+  padding: 6px 12px 6px 14px;
   border-bottom: 1px solid #d2ded1;
   background: #edf2e7;
 }
@@ -155,7 +172,7 @@ button:focus-visible {
   border: 0;
   background: transparent;
   font-size: 17px;
-  font-weight: 750;
+  font-weight: 650;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -199,7 +216,7 @@ button:focus-visible {
 
 .board-layout {
   position: relative;
-  padding: 17px 11px 10px;
+  padding: 12px 11px 9px;
   background:
     radial-gradient(circle at 50% 0, #fafaf299 0, transparent 72%),
     repeating-linear-gradient(90deg, #536e5600 0 17px, #6591650d 17px 18px, #536e5600 18px 32px);
@@ -207,8 +224,8 @@ button:focus-visible {
 .board {
   display: grid;
   grid-template-columns: repeat(var(--columns, 4), minmax(0, 1fr));
-  gap: 12px 5px;
-  min-height: 142px;
+  gap: 8px 5px;
+  min-height: 135px;
   max-width: 440px;
   margin-inline: auto;
   align-content: center;
@@ -219,11 +236,11 @@ button:focus-visible {
   display: grid;
   justify-items: center;
   align-content: end;
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
   width: 100%;
-  min-height: 128px;
-  padding: 7px 3px 0;
+  min-height: 132px;
+  padding: 3px 3px 0;
   border: 1px solid transparent;
   border-radius: 14px;
   background: transparent;
@@ -233,10 +250,10 @@ button:focus-visible {
 .bottle::before {
   content: "";
   position: absolute;
-  bottom: 16px;
-  width: 84%;
-  max-width: 64px;
-  height: 14px;
+  bottom: 12px;
+  width: 80%;
+  max-width: 44px;
+  height: 10px;
   border-radius: 50%;
   background: #1a4b3721;
   filter: blur(4px);
@@ -274,12 +291,12 @@ button:focus-visible {
   place-items: center;
   min-width: 22px;
   width: max-content;
-  height: 19px;
+  height: 15px;
   padding: 0 4px;
   border-radius: 9px 9px 2px 2px;
   color: #456459;
-  background: #d6e3d1c9;
-  font-size: 11px;
+  background: #d6e3d199;
+  font-size: 10px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -292,10 +309,10 @@ button:focus-visible {
   background: #477d60;
 }
 .board.is-recipe .bottle {
-  min-height: 146px;
+  min-height: 150px;
   padding-bottom: 18px;
 }
-.board.is-recipe .bottle::before { bottom: 34px; }
+.board.is-recipe .bottle::before { bottom: 30px; }
 .bottle-goal {
   position: absolute;
   right: 0;
@@ -336,51 +353,56 @@ button:focus-visible {
 
 .vessel {
   position: relative;
-  width: min(100%, 57px);
-  height: 105px;
+  width: min(100%, 42px);
+  height: 112px;
   transform-origin: 50% 18%;
   transition: transform .19s ease, filter .2s ease;
 }
+.vessel::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  left: 31%;
+  width: 38%;
+  height: 15px;
+  border-inline: 1px solid #8eaa9e;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, #fafff1ed, #eaf6eace 35%, #eefbefec 70%, #cfe3d5e8);
+}
 .bottle.is-selected .vessel { transform: translateY(-4px); }
-.bottle.is-pouring { z-index: 3; }
-.bottle.is-pouring .vessel {
-  transform: translateY(-8px) rotate(var(--pour-angle, 20deg));
-}
-.bottle.is-receiving .vessel {
-  filter: drop-shadow(0 0 5px #75a68d64);
-}
 .glass-mouth {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   top: 1px;
-  left: 25%;
-  width: 50%;
-  height: 15px;
-  border: 1.5px solid #9db7ac;
+  left: 24%;
+  width: 52%;
+  height: 9px;
+  border: 1.25px solid #91aca0;
   border-radius: 50%;
-  background: #f6fff5ba;
-  box-shadow: 0 1.5px 0 #fcfff9, 0 3.5px 0 #98b4a094;
+  background: #f6fff5de;
+  box-shadow: 0 1px 0 #fcfff9, 0 2px 0 #98b4a094;
 }
 .glass-mouth::after {
   content: "";
   position: absolute;
-  inset: 3px 4px;
+  inset: 2px 3px;
   border-radius: 50%;
-  background: #bed2c5;
-  box-shadow: inset 0 1.5px 2px #739784a1;
+  background: #afc7b9;
+  box-shadow: inset 0 1px 1px #739784a1;
 }
 .glass-body {
   position: absolute;
-  inset: 11px 0 0;
+  inset: 16px 0 0;
   isolation: isolate;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 3px 2px 2px;
-  border: 1.5px solid #9ab5a7;
-  border-radius: 15px 15px 18px 18px;
-  background: linear-gradient(90deg, #fcfff6b0, #f1faed4a 28%, #f9fff26f 65%, #a8c6b777);
-  box-shadow: inset 1px 0 1px #fff, inset -1px 0 1px #f6fff3, inset 0 -1px 1px #fff, 0 1.5px 0 #688c7b40;
+  padding: 7px 1px 2px;
+  border: 1.25px solid #8faea0;
+  border-radius: 42% 42% 8px 8px / 13px 13px 8px 8px;
+  background: linear-gradient(90deg, #f8fff3b8, #eef7ec2b 29%, #fbfff47a 64%, #a8c6b761);
+  box-shadow: inset 1px 0 1px #fff, inset -1px 0 1px #f6fff3, inset 0 -1px 1px #fff, 0 1px 0 #688c7b40;
 }
 .glass-body::after {
   content: "";
@@ -388,8 +410,8 @@ button:focus-visible {
   z-index: 2;
   inset: 0;
   background:
-    linear-gradient(#fffdf4b3, #fffdf43d) 13% 30% / 3px 58% no-repeat,
-    linear-gradient(#fffdf470, #fffdf42b) 83% 75% / 2px 45% no-repeat;
+    linear-gradient(#fffdf4a8, #fffdf433) 13% 30% / 2px 65% no-repeat,
+    linear-gradient(#fffdf46b, #fffdf424) 83% 70% / 1px 53% no-repeat;
   pointer-events: none;
 }
 .liquid {
@@ -405,44 +427,24 @@ button:focus-visible {
   box-shadow: inset 0 -1px 0 #18372920;
 }
 .liquid:not(.is-empty):is(:first-child, .is-empty + .liquid) {
-  border-radius: 50% 50% 0 0 / 26% 26% 0 0;
-  box-shadow: inset 0 2px 0 #fff5, inset 0 -1px 0 #18372920;
+  border-radius: 50% 50% 0 0 / 22% 22% 0 0;
+  box-shadow: inset 0 2px 0 #fff4, inset 0 -1px 0 #18372920;
 }
 .liquid span {
   position: relative;
   z-index: 3;
-  min-width: 15px;
-  padding: 0 1px;
-  border-radius: 5px;
-  background: #fff9edb3;
-  font: 700 10px/13px ui-sans-serif, -apple-system, sans-serif;
+  min-width: 12px;
+  border-radius: 3px;
+  background: #fff9ed7d;
+  font: 650 9px/11px ui-sans-serif, -apple-system, sans-serif;
   text-align: center;
 }
 .liquid.is-empty { background: transparent; }
 .liquid.is-hidden {
   color: #fdf9ef;
-  background: repeating-linear-gradient(135deg, #596e68 0 6px, #647973 6px 11px);
-  font-weight: 750;
-  font-size: 12px;
+  background: repeating-linear-gradient(135deg, #586b66 0 6px, #607570 6px 11px);
 }
-.liquid.is-hidden span { background: #233f35bd; }
-.pour-stream {
-  position: fixed;
-  z-index: 10;
-  height: 5px;
-  border-radius: 4px;
-  background: var(--stream-color, #86a987);
-  box-shadow: inset 0 1px #fff8, 0 1px 2px #16452c20;
-  transform: rotate(var(--stream-angle, 0deg));
-  transform-origin: 0 center;
-  pointer-events: none;
-  animation: stream .26s ease both;
-}
-@keyframes stream {
-  0% { opacity: .4; clip-path: inset(0 100% 0 0); }
-  40% { opacity: 1; clip-path: inset(0); }
-  100% { opacity: .3; clip-path: inset(0 0 0 60%); }
-}
+.liquid.is-hidden span { background: #233f357d; }
 
 .status-line {
   display: flex;
@@ -646,17 +648,17 @@ button:focus-visible {
   .shell { padding-inline: 24px; }
   .board-layout { padding: 21px 17px 15px; }
   .board { gap: 14px 9px; min-height: 155px; }
-  .vessel { width: min(100%, 63px); height: 116px; }
-  .bottle { min-height: 138px; }
-  .board.is-recipe .bottle { min-height: 156px; }
+  .vessel { width: min(100%, 47px); height: 122px; }
+  .bottle { min-height: 143px; }
+  .board.is-recipe .bottle { min-height: 161px; }
 }
 @media (max-width: 365px) {
   .shell { padding-inline: 11px; }
   .board-layout { padding-inline: 8px; }
   .board { gap: 8px 3px; }
-  .bottle { min-height: 113px; }
-  .board.is-recipe .bottle { min-height: 131px; }
-  .vessel { height: 90px; }
+  .bottle { min-height: 116px; }
+  .board.is-recipe .bottle { min-height: 134px; }
+  .vessel { width: min(100%, 36px); height: 96px; }
   .controls { gap: 4px; }
   .tool-button { font-size: 12px; }
   .mode-switch button { font-size: 13px; }
@@ -664,9 +666,8 @@ button:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
   .vessel { transition: none; }
-  .demo-source, .demo-source i:last-child, .demo-target i:last-child, .demo-drop, .pour-stream {
+  .demo-source, .demo-source i:last-child, .demo-target i:last-child, .demo-drop {
     animation: none;
   }
   .demo-drop { opacity: 1; }
-  .pour-stream { display: none; }
 }

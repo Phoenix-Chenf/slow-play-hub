@@ -1,0 +1,48 @@
+.pour-motion-scene {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pour-motion-scene .pour-motion-vessel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  transition: none;
+  filter: drop-shadow(0 5px 5px #15342929);
+  will-change: transform;
+}
+
+.pour-motion-water {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bottle.pour-motion-source .vessel { visibility: hidden; }
+.bottle.pour-motion-target .glass-mouth { box-shadow: 0 0 0 2px #fcfff7, 0 0 10px #659e7659; }
+
+.liquid.pour-motion-cell {
+  background: transparent;
+  box-shadow: none;
+}
+
+.liquid.pour-motion-cell::before {
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--pour-motion-fill, 0%);
+  content: '';
+  background: linear-gradient(90deg, var(--pour-motion-light), var(--pour-motion-deep));
+}
+
+.liquid.pour-motion-cell[data-pour-surface]::before {
+  border-radius: 50% 50% 0 0 / 14% 14% 0 0;
+  box-shadow: inset 0 1.5px 0 #fff7;
+}
+
+.liquid.pour-motion-cell .liquid-symbol { opacity: var(--pour-motion-symbol, 0); }
