@@ -7,7 +7,7 @@ const games = {
   traffic: ['让一让', 'games/let-it-pass/index.html'],
   garden: ['一笔游园', 'games/one-stroke-garden/index.html?v=2'],
   sudoku: ['慢慢数独', 'games/sudoku/index.html?v=20261112-v3'],
-  pour: ['倒一倒', 'games/pour-sort/index.html?v=20261119-flow']
+  pour: ['倒一倒', 'games/pour-sort/index.html?v=20261119-300']
 };
 const item = games[new URLSearchParams(location.search).get('game')];
 const frame = document.getElementById('game');

@@ -6,11 +6,13 @@
   const key = 'pour-sort-progress-v1';
   const modes = Object.keys(game.modes);
   const buttons = document.querySelectorAll('[data-mode]');
+  const shell = document.querySelector('.shell');
   const board = $('board');
   const levelDialog = $('levels-dialog');
   const helpDialog = $('help-dialog');
   const winDialog = $('win-dialog');
   const openers = new Map();
+  const levelsPerGroup = 20;
   const messages = {
     color: '顶层颜色不一样。试试同色的瓶子，或找一个空瓶。',
     full: '这个瓶子已经满了。',
@@ -208,6 +210,8 @@
     buttons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
     $('level-name').textContent = level.fog ? `${level.name} · 迷雾` : level.name;
     board.classList.toggle('is-recipe', mode === 'recipe');
+    shell.classList.toggle('has-dense-board', bottles.length >= 16);
+    board.classList.toggle('is-extra-dense', bottles.length >= 22);
     board.style.setProperty('--columns', bottles.length <= 4 ? bottles.length : bottles.length === 6 ? 3 : bottles.length <= 8 ? 4 : 5);
 
     const nodes = document.createDocumentFragment();
@@ -394,21 +398,53 @@
     if (!activePour && window.confirm('重新整理这一关？本局进度会清空。')) selectLevel(index, true);
   });
 
-  function openLevels() {
-    const choices = game.modes[mode].levels.map((level, i) => {
+  function showLevelGroup(start) {
+    const levels = game.modes[mode].levels;
+    const end = Math.min(start + levelsPerGroup, levels.length);
+    for (const group of $('level-groups').children) {
+      group.setAttribute('aria-pressed', String(Number(group.dataset.start) === start));
+    }
+    const choices = levels.slice(start, end).map((level, offset) => {
+      const i = start + offset;
       const finished = active.finished[i];
-      const button = el('button', 'level-option', `${String(i + 1).padStart(2, '0')} · ${level.name}${finished ? ' ✓' : ''}`);
+      const button = el('button', 'level-option');
       button.type = 'button';
+      button.append(el('span', '', String(i + 1)));
+      if (finished) {
+        const mark = el('span', 'level-done', '✓');
+        mark.setAttribute('aria-hidden', 'true');
+        button.appendChild(mark);
+      }
       if (i === index) button.setAttribute('aria-current', 'true');
-      if (level.fog) button.setAttribute('aria-label', `第 ${i + 1} 关，${level.name}，迷雾${finished ? '，已完成' : ''}`);
+      button.setAttribute('aria-label', `第 ${i + 1} 关，${level.name}${level.fog ? '，迷雾' : ''}${finished ? '，已完成' : ''}`);
       button.addEventListener('click', () => {
         closeDialog(levelDialog);
         selectLevel(i);
       });
       return button;
     });
-    $('level-list').replaceChildren(...choices);
+    const list = $('level-list');
+    list.setAttribute('aria-label', `第 ${start + 1} 至 ${end} 关`);
+    list.replaceChildren(...choices);
+  }
+
+  function openLevels() {
+    if (activePour || levelDialog.open) return;
+    const levels = game.modes[mode].levels;
+    const groups = [];
+    for (let start = 0; start < levels.length; start += levelsPerGroup) {
+      const end = Math.min(start + levelsPerGroup, levels.length);
+      const button = el('button', 'level-group', `${start + 1}–${end}`);
+      button.type = 'button';
+      button.dataset.start = String(start);
+      button.setAttribute('aria-label', `第 ${start + 1} 至 ${end} 关`);
+      button.addEventListener('click', () => showLevelGroup(start));
+      groups.push(button);
+    }
+    $('level-groups').replaceChildren(...groups);
+    showLevelGroup(Math.floor(index / levelsPerGroup) * levelsPerGroup);
     openDialog(levelDialog, $('level-button'));
+    levelDialog.scrollTop = 0;
   }
 
   $('level-button').addEventListener('click', openLevels);

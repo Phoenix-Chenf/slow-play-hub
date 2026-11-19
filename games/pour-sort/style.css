@@ -508,6 +508,7 @@ button:focus-visible {
   z-index: 20;
   inset: 0;
   width: min(390px, calc(100% - 28px));
+  max-width: none;
   max-height: calc(100% - 28px);
   margin: auto;
   padding: 0;
@@ -533,26 +534,47 @@ button:focus-visible {
 .primary-button { background: #285941; color: white; }
 .primary-button:active { background: #1e4834; }
 .plain-button { margin-top: 5px; background: transparent; color: #456654; }
-.level-list {
+.level-groups, .level-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 13px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
 }
-.level-list button {
+.level-groups button, .level-list button {
+  position: relative;
   min-width: 0;
-  min-height: 48px;
-  padding: 5px 2px;
+  min-height: 44px;
+  padding: 4px 2px;
   border: 1px solid #cadacf;
   border-radius: 10px;
   background: #edf3e9;
   font-size: 14px;
+  font-variant-numeric: tabular-nums;
   font-weight: 650;
+}
+.level-groups button {
+  background: var(--white);
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.level-groups button[aria-pressed="true"] {
+  border-color: #78a289;
+  background: #e4efe3;
+  color: var(--ink);
 }
 .level-list button[aria-current="true"], .level-list button.is-current {
   color: white;
   background: #2b6249;
 }
+.level-done {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  color: #2d6d4d;
+  font-size: 10px;
+}
+.level-list button[aria-current="true"] .level-done { color: inherit; }
 .level-list button[aria-disabled="true"], .level-list button:disabled { opacity: .55; }
 .win-content { text-align: center; }
 .win-mark {
@@ -662,7 +684,68 @@ button:focus-visible {
   .controls { gap: 4px; }
   .tool-button { font-size: 12px; }
   .mode-switch button { font-size: 13px; }
+  #levels-dialog .sheet-content { padding-inline: 16px; }
+  .level-groups button { font-size: 10px; }
   .level-list button { font-size: 12px; }
+}
+
+.has-dense-board .board-layout { padding: 8px 6px 6px; }
+.has-dense-board .board {
+  grid-template-columns: repeat(var(--dense-columns, 6), minmax(0, 1fr));
+  gap: 4px 3px;
+}
+.has-dense-board .bottle {
+  min-height: 101px;
+  gap: 2px;
+  padding: 2px 2px 0;
+  border-radius: 11px;
+  scroll-margin-bottom: 64px;
+}
+.has-dense-board .board.is-recipe .bottle {
+  min-height: 116px;
+  padding-bottom: 15px;
+}
+.has-dense-board .board.is-recipe .bottle::before { bottom: 25px; }
+.has-dense-board .vessel {
+  width: min(100%, 33px);
+  height: 84px;
+}
+.has-dense-board .glass-mouth { height: 7px; }
+.has-dense-board .glass-mouth::after { inset: 1px 2px; }
+.has-dense-board .vessel::before { top: 5px; height: 12px; }
+.has-dense-board .glass-body {
+  inset-block-start: 12px;
+  padding-top: 5px;
+}
+.has-dense-board .bottle-number {
+  min-width: 18px;
+  height: 13px;
+  padding-inline: 2px;
+  font-size: 9px;
+}
+.has-dense-board .bottle-goal {
+  min-height: 14px;
+  gap: 2px;
+  padding-inline: 2px;
+  font-size: 9px;
+}
+.has-dense-board .controls {
+  position: sticky;
+  z-index: 3;
+  bottom: env(safe-area-inset-bottom, 0px);
+  margin-top: 5px;
+  padding-block: 4px;
+  background: var(--paper);
+}
+@media (min-width: 374px) {
+  .has-dense-board .board.is-extra-dense { --dense-columns: 7; }
+}
+@media (max-width: 319px) {
+  .has-dense-board .board { --dense-columns: 5; }
+  #levels-dialog .sheet-content { padding-inline: 12px; }
+  .level-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .level-groups { gap: 3px; }
+  .level-groups button { font-size: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .vessel { transition: none; }

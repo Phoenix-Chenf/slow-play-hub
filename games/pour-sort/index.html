@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#f8f4e9">
   <meta name="description" content="倒一倒：把同色果饮倒在一起，慢慢整理桌上的玻璃瓶。">
   <title>倒一倒 · 果饮整理</title>
-  <link rel="stylesheet" href="style.css?v=20261118-smooth">
-  <link rel="stylesheet" href="pour-motion.css?v=20261119-flow">
-  <script defer src="engine.js?v=20261119-flow"></script>
-  <script defer src="pour-motion.js?v=20261119-flow"></script>
-  <script defer src="app.js?v=20261119-flow"></script>
+  <link rel="stylesheet" href="style.css?v=20261119-300">
+  <link rel="stylesheet" href="pour-motion.css?v=20261119-300">
+  <script defer src="engine.js?v=20261119-300"></script>
+  <script defer src="pour-motion.js?v=20261119-300"></script>
+  <script defer src="app.js?v=20261119-300"></script>
 </head>
 <body>
   <main class="shell">
@@ -40,7 +40,7 @@
       <div class="stage">
         <div class="level-heading">
           <button type="button" id="level-button" class="level-button" aria-haspopup="dialog" aria-label="选择关卡">
-            <span id="level-label">第 1 / 30 关</span>
+            <span id="level-label">第 1 关</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
           <p id="level-name">初见果香</p>
@@ -101,7 +101,8 @@
         <h2 id="levels-title">选择关卡</h2>
         <button class="round-control close-button" type="button" id="close-levels" aria-label="关闭选关">×</button>
       </div>
-      <div id="level-list" class="level-list"></div>
+      <div id="level-groups" class="level-groups" role="group" aria-label="关卡分组"></div>
+      <div id="level-list" class="level-list" role="group"></div>
     </div>
   </dialog>
 
