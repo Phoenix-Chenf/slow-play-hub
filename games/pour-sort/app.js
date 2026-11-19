@@ -47,7 +47,7 @@
     const entry = { index, runs: {}, finished: {} };
     for (let i = 0; i < levels.length; i += 1) {
       const run = data?.runs?.[i];
-      if (validState(run?.state, mode, i)) {
+      if (validState(run?.state, mode, i) && (run.state.moves > 0 || run.state.extra > 0 || run.history?.length)) {
         const goals = levels[i].goals || {};
         entry.runs[i] = {
           state: { ...run.state, goals },
@@ -85,7 +85,7 @@
   let run = active.runs[index] || { state: game.create(index, mode), history: [] };
   let selected = null;
   let highlighted = null;
-  let busy = false;
+  let activePour = null;
 
   function save() {
     progress.mode = mode;
@@ -97,6 +97,14 @@
       storageOK = false;
     }
   }
+
+  function saveInterruptedPour() {
+    if (activePour) save();
+  }
+  window.addEventListener('pagehide', saveInterruptedPour);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) saveInterruptedPour();
+  });
 
   function announce(text, tone = 'normal') {
     const notice = $('notice');
@@ -111,6 +119,19 @@
     return node;
   }
 
+  function highlightBottle(button, i) {
+    button.classList.toggle('is-selected', i === selected);
+    button.classList.toggle('is-source-hint', i === highlighted?.from);
+    button.classList.toggle('is-target-hint', i === highlighted?.to);
+    const hint = i === highlighted?.from ? '，提示起点' : i === highlighted?.to ? '，提示落点' : '';
+    button.setAttribute('aria-pressed', String(i === selected));
+    button.setAttribute('aria-label', button.dataset.label + hint);
+  }
+
+  function updateHighlights() {
+    for (const button of board.children) highlightBottle(button, Number(button.dataset.bottle));
+  }
+
   function bottleButton(bottle, i) {
     const button = el('button', 'bottle');
     button.type = 'button';
@@ -118,16 +139,12 @@
     const complete = game.isCompleteBottle(bottle);
     const goal = game.colors[run.state.goals?.[i]];
     const ready = complete && (!goal || bottle[0] === run.state.goals[i]);
-    button.classList.toggle('is-selected', i === selected);
-    button.classList.toggle('is-source-hint', i === highlighted?.from);
-    button.classList.toggle('is-target-hint', i === highlighted?.to);
     button.classList.toggle('is-complete', ready);
     if (goal) {
       button.classList.add('has-goal');
       button.classList.toggle('is-goal-ready', ready);
       button.style.setProperty('--goal-color', goal.light);
     }
-    button.setAttribute('aria-pressed', String(i === selected));
     const labels = [];
     const vessel = el('span', 'vessel');
     vessel.setAttribute('aria-hidden', 'true');
@@ -146,14 +163,15 @@
         layer.style.setProperty('--liquid-light', color.light);
         layer.style.setProperty('--liquid-deep', color.deep);
         if (j === bottle.length - 1) layer.classList.add('is-surface');
+        if (j > 0 && run.state.revealed[i][j - 1] && bottle[j - 1] === bottle[j]) layer.classList.add('is-connected-below');
         layer.appendChild(el('span', 'liquid-symbol', color.icon));
         labels.push(color.name);
       }
       body.appendChild(layer);
     }
-    const hint = i === highlighted?.from ? '，提示起点' : i === highlighted?.to ? '，提示落点' : '';
     const detail = labels.length ? `从上到下：${labels.join('、')}` : '空瓶';
-    button.setAttribute('aria-label', `${i + 1} 号瓶，${detail}${goal ? `，目标${goal.name}` : ''}${ready ? '，已装好' : ''}${hint}`);
+    button.dataset.label = `${i + 1} 号瓶，${detail}${goal ? `，目标${goal.name}` : ''}${ready ? '，已装好' : ''}`;
+    highlightBottle(button, i);
     vessel.appendChild(body);
     button.append(vessel, el('span', 'bottle-number', `${String(i + 1).padStart(2, '0')}${ready ? ' ✓' : ''}`));
     if (goal) button.append(el('span', 'bottle-goal', goal.name));
@@ -164,36 +182,42 @@
     return board.querySelector(`[data-bottle="${i}"]`);
   }
 
-  function render(focusIndex = null) {
+  function renderCounts() {
+    const level = game.modes[mode].levels[index];
+    const { bottles, moves } = run.state;
+    $('moves').textContent = `${moves} 步`;
+    const sorted = bottles.filter((bottle, i) => {
+      const goal = run.state.goals?.[i];
+      return game.isCompleteBottle(bottle) && (goal == null || bottle[0] === goal);
+    }).length;
+    $('progress').textContent = `${sorted} / ${new Set(level.bottles.flat()).size} 瓶完成`;
+    $('undo').disabled = run.history.length === 0;
+    const solved = game.isSolved(run.state);
+    $('hint').disabled = solved;
+    $('add').disabled = solved;
+  }
+
+  function render() {
     const currentMode = game.modes[mode];
     const level = currentMode.levels[index];
-    const { bottles, moves } = run.state;
+    const { bottles } = run.state;
     const levelLabel = `第 ${index + 1} / ${currentMode.levels.length} 关`;
     $('level-label').textContent = levelLabel;
     $('level-button').setAttribute('aria-label', `选择关卡，当前${levelLabel}`);
     $('mode-description').textContent = currentMode.description;
     buttons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
     $('level-name').textContent = level.fog ? `${level.name} · 迷雾` : level.name;
-    $('moves').textContent = `${moves} 步`;
-    const sorted = bottles.filter((bottle, i) => {
-      const goal = run.state.goals?.[i];
-      return game.isCompleteBottle(bottle) && (goal == null || bottle[0] === goal);
-    }).length;
     board.classList.toggle('is-recipe', mode === 'recipe');
-    $('progress').textContent = `${sorted} / ${new Set(level.bottles.flat()).size} 瓶完成`;
-    $('undo').disabled = busy || run.history.length === 0;
-    $('hint').disabled = busy || game.isSolved(run.state);
-    $('add').disabled = busy || game.isSolved(run.state);
     board.style.setProperty('--columns', bottles.length <= 4 ? bottles.length : bottles.length === 6 ? 3 : bottles.length <= 8 ? 4 : 5);
 
     const nodes = document.createDocumentFragment();
     bottles.forEach((bottle, i) => nodes.appendChild(bottleButton(bottle, i)));
     board.replaceChildren(nodes);
-    if (focusIndex !== null) findBottle(focusIndex)?.focus({ preventScroll: true });
+    renderCounts();
   }
 
   function openDialog(dialog, trigger) {
-    if (dialog.open || busy) return;
+    if (dialog.open || activePour) return;
     if (trigger) openers.set(dialog, trigger);
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
@@ -215,7 +239,7 @@
   });
 
   function selectLevel(i, reset = false) {
-    if (busy) return;
+    if (activePour) return;
     index = i;
     run = !reset && active.runs[i] ? active.runs[i] : { state: game.create(i, mode), history: [] };
     selected = null;
@@ -254,7 +278,7 @@
     }
     board.setAttribute('aria-busy', 'true');
     try {
-      animation.play({
+      return animation.play({
         source, target, amount: result.amount, color: game.colors[result.color],
         fromBefore: before.bottles[from].length, toBefore: before.bottles[to].length,
         fromAfter: result.state.bottles[from].length, toAfter: result.state.bottles[to].length,
@@ -267,13 +291,13 @@
 
   board.addEventListener('click', (event) => {
     const button = event.target.closest('[data-bottle]');
-    if (!button || busy || game.isSolved(run.state)) return;
+    if (!button || activePour || game.isSolved(run.state)) return;
     const target = Number(button.dataset.bottle);
     const focusIndex = event.detail === 0 ? target : null;
     if (selected === target) {
       selected = null;
       highlighted = null;
-      render(focusIndex);
+      updateHighlights();
       announce('已取消选择。');
       return;
     }
@@ -284,7 +308,7 @@
       }
       if (highlighted?.from !== target) highlighted = null;
       selected = target;
-      render(focusIndex);
+      updateHighlights();
       announce(`已选 ${target + 1} 号瓶，点同色或空瓶。`);
       return;
     }
@@ -297,18 +321,29 @@
     }
     run.history.push(before);
     run.state = result.state;
+    const previousBest = active.finished[index];
     if (result.won) {
-      const previous = active.finished[index];
       const { moves } = run.state;
-      active.finished[index] = previous ? Math.min(previous, moves) : moves;
+      active.finished[index] = previousBest ? Math.min(previousBest, moves) : moves;
     }
     selected = null;
     highlighted = null;
-    busy = true;
-    save();
-    animatePour(from, target, before, result, () => {
-      busy = false;
-      render(focusIndex);
+    const job = { cancel: null, undo: false };
+    activePour = job;
+    $('undo').disabled = false;
+    job.cancel = animatePour(from, target, before, result, () => {
+      activePour = null;
+      if (job.undo) {
+        if (result.won && previousBest) active.finished[index] = previousBest;
+        else if (result.won) delete active.finished[index];
+        undoMove();
+        return;
+      }
+      for (const i of [from, target]) findBottle(i).replaceWith(bottleButton(run.state.bottles[i], i));
+      updateHighlights();
+      renderCounts();
+      if (focusIndex !== null) findBottle(focusIndex)?.focus({ preventScroll: true });
+      save();
       if (result.won) showWin();
       else if (mode === 'recipe' && run.state.bottles.every((bottle) => !bottle.length || game.isCompleteBottle(bottle))) {
         announce('颜色分好了，再把带标签的瓶子换成对应颜色。');
@@ -318,27 +353,34 @@
     });
   });
 
-  $('undo').addEventListener('click', () => {
-    if (busy || !run.history.length) return;
+  function undoMove() {
+    if (!run.history.length) return;
     run.state = run.history.pop();
     selected = null;
     highlighted = null;
     save();
     render();
     announce('已撤回一步。');
+  }
+
+  $('undo').addEventListener('click', () => {
+    if (activePour) {
+      activePour.undo = true;
+      activePour.cancel?.();
+    } else undoMove();
   });
 
   $('hint').addEventListener('click', () => {
-    if (busy || game.isSolved(run.state)) return;
+    if (activePour || game.isSolved(run.state)) return;
     selected = null;
     highlighted = game.hint(run.state, run.history);
-    render();
+    updateHighlights();
     if (!highlighted) announce('暂时找不到合适的倒法，可以撤回或加一个空瓶。', 'error');
     else announce(`可以试试从 ${highlighted.from + 1} 号瓶倒进 ${highlighted.to + 1} 号瓶。`);
   });
 
   $('add').addEventListener('click', () => {
-    if (busy || game.isSolved(run.state)) return;
+    if (activePour || game.isSolved(run.state)) return;
     run.history.push(run.state);
     run.state = game.addBottle(run.state);
     selected = null;
@@ -349,7 +391,7 @@
   });
 
   $('reset').addEventListener('click', () => {
-    if (!busy && window.confirm('重新整理这一关？本局进度会清空。')) selectLevel(index, true);
+    if (!activePour && window.confirm('重新整理这一关？本局进度会清空。')) selectLevel(index, true);
   });
 
   function openLevels() {
@@ -372,7 +414,7 @@
   $('level-button').addEventListener('click', openLevels);
   buttons.forEach((button) => button.addEventListener('click', () => {
     const chosen = button.dataset.mode;
-    if (busy || chosen === mode || !modes.includes(chosen)) return;
+    if (activePour || chosen === mode || !modes.includes(chosen)) return;
     mode = chosen;
     active = progress.modes[mode];
     selectLevel(active.index);

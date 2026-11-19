@@ -19,30 +19,48 @@
 .pour-motion-water {
   position: absolute;
   z-index: 1;
-  inset: 0;
-  width: 100%;
-  height: 100%;
 }
 
 .bottle.pour-motion-source .vessel { visibility: hidden; }
 .bottle.pour-motion-target .glass-mouth { box-shadow: 0 0 0 2px #fcfff7, 0 0 10px #659e7659; }
 
-.liquid.pour-motion-cell {
+.liquid.is-connected-below:not(.is-empty) { box-shadow: none; }
+.liquid.is-connected-below.is-surface:not(.is-empty) { box-shadow: inset 0 2px 0 #fff4; }
+
+.liquid.pour-motion-replaced:not(.is-hidden) {
   background: transparent;
   box-shadow: none;
 }
+.liquid.pour-motion-replaced:not(.is-hidden) .liquid-symbol { visibility: hidden; }
 
-.liquid.pour-motion-cell::before {
+.pour-motion-fill {
   position: absolute;
-  inset: auto 0 0;
-  height: var(--pour-motion-fill, 0%);
-  content: '';
-  background: linear-gradient(90deg, var(--pour-motion-light), var(--pour-motion-deep));
+  z-index: 1;
+  height: 0;
+  pointer-events: none;
 }
 
-.liquid.pour-motion-cell[data-pour-surface]::before {
-  border-radius: 50% 50% 0 0 / 14% 14% 0 0;
-  box-shadow: inset 0 1.5px 0 #fff7;
+.pour-motion-fill .pour-motion-column,
+.pour-motion-fill .pour-motion-meniscus {
+  position: absolute;
+  inset-inline: 0;
+  display: block;
+  min-width: 0;
+  padding: 0;
+  border-radius: 0;
+  will-change: transform;
 }
 
-.liquid.pour-motion-cell .liquid-symbol { opacity: var(--pour-motion-symbol, 0); }
+.pour-motion-fill .pour-motion-column {
+  bottom: 0;
+  transform-origin: center bottom;
+  background: linear-gradient(90deg, var(--pour-light), var(--pour-deep));
+}
+
+.pour-motion-fill .pour-motion-meniscus {
+  top: -1.5px;
+  height: 3px;
+  border-radius: 55%;
+  background: linear-gradient(100deg, var(--pour-light), var(--pour-deep));
+  box-shadow: inset 0 1px #fff6;
+}
